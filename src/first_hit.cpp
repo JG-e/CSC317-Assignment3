@@ -9,7 +9,23 @@ bool first_hit(
   Eigen::Vector3d & n)
 {
   ////////////////////////////////////////////////////////////////////////////
-  // Replace with your code here:
-  return false;
+  using namespace std;
+  // Loop over all objects in the scene, call their intersect method, and
+  // find the closest intersection.
+  bool found = false;
+  t = std::numeric_limits<double>::infinity();
+  for (int i = 0; i < objects.size(); i++) {
+    double t_obj;
+    Eigen::Vector3d n_obj;
+    if (objects[i]->intersect(ray, min_t, t_obj, n_obj)) {
+      if (t_obj < t) {
+        t = t_obj;
+        n = n_obj;
+        hit_id = i;
+        found = true;
+      }
+    }
+  }
+  return found;
   ////////////////////////////////////////////////////////////////////////////
 }
