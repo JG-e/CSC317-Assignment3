@@ -25,10 +25,12 @@ bool raycolor(
     Vector3d color = blinn_phong_shading(ray, hit_id, t, n, objects, lights);
     Vector3d hit = ray.origin + t * ray.direction;
     hit += 1e-9 * n;
-    Ray mirror_ray(hit, reflect(ray.direction, n));
+    Ray mirror_ray;
+    mirror_ray.origin = hit;
+    mirror_ray.direction = reflect(ray.direction, n);
     Vector3d mirror_color;
     if (raycolor(mirror_ray, 1.0, objects, lights, num_recursive_calls + 1, mirror_color)) {
-      rgb = color + objects[hit_id]->material->km * mirror_color;
+      rgb = color + objects[hit_id]->material->km.cwiseProduct(mirror_color);
     } else {
       rgb = color;
     }
