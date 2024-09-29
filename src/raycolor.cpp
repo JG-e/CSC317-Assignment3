@@ -21,19 +21,17 @@ bool raycolor(
   int hit_id;
   double t;
   Vector3d n;
-  if (first_hit(ray, min_t, objects, hit_id, t, n)) {
-    Vector3d color = blinn_phong_shading(ray, hit_id, t, n, objects, lights);
+  bool hit = first_hit(ray, min_t, objects, hit_id, t, n);
+  if (hit) {
+    rgb = blinn_phong_shading(ray, hit_id, t, n, objects, lights);
     Ray mirror_ray;
-    mirror_ray.origin = ray.origin + t * ray.direction + 1e-9 * n;
+    mirror_ray.origin = ray.origin + t * ray.direction + 1e-6 * n;
     mirror_ray.direction = reflect(ray.direction, n);
     Vector3d mirror_color;
-    if (raycolor(mirror_ray, 1.0, objects, lights, num_recursive_calls + 1, mirror_color)) {
-      rgb = color + objects[hit_id]->material->km.cwiseProduct(mirror_color);
-    } else {
-      rgb = color;
+    if (raycolor(mirror_ray, 1e-6, objects, lights, num_recursive_calls + 1, mirror_color)) {
+      rgb += (objects[hit_id]->material->km.array() * mirror_color.array()).matrix();
     }
-    return true;
   }
-  return false;
+  return hit;
   ////////////////////////////////////////////////////////////////////////////
 }
